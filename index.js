@@ -86,19 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // ---- Chairman Hero Parallax ----
-    const chairmanBg = document.querySelector('.chairman-bg');
-    const heroEl = document.getElementById('hero');
-    if (chairmanBg && heroEl) {
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const heroHeight = heroEl.offsetHeight;
-            if (scrolled < heroHeight) {
-                const speed = 0.25;
-                chairmanBg.style.transform = `scale(1.05) translateY(${scrolled * speed}px)`;
-            }
-        }, { passive: true });
-    }
+    // (Chairman hero parallax removed — elements do not exist on this page)
 
 
     // ---- Scroll Animations (Intersection Observer) ----
@@ -194,7 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Parallax Effect for Stats Background ----
     const statsBg = document.querySelector('.stats-bg');
-    if (statsBg) {
+    const statsSection = document.querySelector('.stats');
+    if (statsBg && statsSection) {
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const statsRect = statsSection.getBoundingClientRect();
@@ -221,9 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         navLinks.forEach(link => {
-            link.style.color = '';
+            link.classList.remove('nav-active');
             if (link.getAttribute('href') === `#${current}`) {
-                link.style.color = 'var(--deep-red)';
+                link.classList.add('nav-active');
             }
         });
     }, { passive: true });
@@ -283,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // ---- RadiusOnScroll Effect ----
+        // ---- RadiusOnScroll Effect (scroll-driven, not rAF loop) ----
         const startRadius = 0;    // starts sharp / full-bleed
         const endRadius = 48;     // rounds to 48px
 
@@ -302,11 +291,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const currentRadius = startRadius + (endRadius - startRadius) * progress;
             aboutGallery.style.borderRadius = currentRadius + 'px';
-
-            requestAnimationFrame(updateRadiusOnScroll);
         }
 
-        requestAnimationFrame(updateRadiusOnScroll);
+        // Drive radius from scroll, not an infinite rAF loop
+        window.addEventListener('scroll', updateRadiusOnScroll, { passive: true });
+        updateRadiusOnScroll(); // run once on load
+
+        // ---- About Gallery Auto-Play ----
+        setInterval(() => {
+            const next = (currentGallerySlide + 1) % totalGallerySlides;
+            goToGallerySlide(next);
+        }, 4000);
     }
 
 
@@ -381,7 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Electric Cables Canvas ----
     (function initElectricCables() {
-        const canvas = document.getElementById('logoDroplets');
+        // Targets the logo-intro canvas on index.html OR the hero canvas on utility.html
+        const canvas = document.getElementById('logoDroplets') || document.getElementById('utilityElecCanvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
@@ -736,10 +732,10 @@ document.addEventListener('DOMContentLoaded', () => {
             logoWrap.style.transform = 'scale(18)';
 
             // Black overlay fades in partway through the zoom
-            setTimeout(() => { overlay.classList.add('visible'); }, 480);
+            const overlayTimer = setTimeout(() => { overlay.classList.add('visible'); }, 480);
 
             // After zoom peak: jump to section 2 and reset everything
-            setTimeout(() => {
+            const resetTimer = setTimeout(() => {
                 hasTransitioned = true;
 
                 nextSection.scrollIntoView({ behavior: 'instant', block: 'start' });
@@ -750,13 +746,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 logoWrap.style.transform = '';
                 logoWrap.style.animation = '';
                 logoWrap.style.borderRadius = '';
-                document.body.style.overflow = '';
+                document.body.style.overflow = ''; // Always clear overflow
 
                 // Reveal section 2 by fading overlay away
                 requestAnimationFrame(() => { overlay.classList.remove('visible'); });
 
                 isTransitioning = false;
             }, 920);
+
+            // Safety net: if anything goes wrong, always restore scroll after 1.5s
+            setTimeout(() => {
+                if (document.body.style.overflow === 'hidden') {
+                    document.body.style.overflow = '';
+                    isTransitioning = false;
+                }
+            }, 1500);
         }
 
         // Reset state when user scrolls back to top

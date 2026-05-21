@@ -94,6 +94,9 @@
 
   window.addEventListener('resize', () => {
     width = canvas.width = canvas.offsetWidth;
-    height = canvas.height = canvas.offsetHeight;
+    // Use clientHeight of the parent element for reliable full coverage
+    height = canvas.height = canvas.parentElement
+      ? canvas.parentElement.offsetHeight
+      : window.innerHeight;
   });
 })();

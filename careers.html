@@ -4,9 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
   <title>Careers - ARAR Group</title>
   <meta name="description"
-    content="Join ARAR Group, leading EPC & Utility Contracting Company in Dubai. Send your resume to info@arargroup.ae to explore career opportunities.">
+    content="Join ARAR Group, leading EPC &amp; Utility Contracting Company in Dubai. Send your resume to info@arargroup.ae to explore career opportunities.">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Careers at ARAR Group">
+  <meta property="og:description" content="Join ARAR Group, leading EPC &amp; Utility Contracting Company in Dubai. Explore career opportunities with us.">
+  <meta property="og:image" content="ARAR.png">
+  <meta property="og:url" content="https://arargroup.ae/careers.html">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="modal.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,10 +34,51 @@
         <a href="index.html#about">About</a>
         <a href="index.html#services">Services</a>
         <a href="index.html#stats">Experience</a>
-        <a href="index.html#all-services">Solutions</a>
+        <!-- Companies Dropdown -->
+        <div class="nav-dropdown" id="navCompaniesDropdown">
+          <button class="nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false" id="navCompaniesTrigger">
+            Companies
+            <svg class="nav-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              width="12" height="12">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          <div class="nav-dropdown-panel" id="navCompaniesPanel" role="menu">
+            <a href="utility.html" class="nav-dd-item nav-dd-utility" role="menuitem">
+              <span class="nav-dd-dot nav-dd-dot--utility"></span>
+              <span class="nav-dd-info">
+                <span class="nav-dd-name">ARAR Utility Co.</span>
+                <span class="nav-dd-sub">EPC Electrical &amp; Power</span>
+              </span>
+              <svg class="nav-dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                width="14" height="14">
+                <path d="M7 17L17 7M17 7H7M17 7v10" />
+              </svg>
+            </a>
+            <a href="https://www.ararinfra.com/" target="_blank" rel="noopener noreferrer"
+              class="nav-dd-item nav-dd-infra" role="menuitem">
+              <span class="nav-dd-dot nav-dd-dot--infra"></span>
+              <span class="nav-dd-info">
+                <span class="nav-dd-name">ARAR Infra Co.</span>
+                <span class="nav-dd-sub">Civil &amp; Road Works</span>
+              </span>
+              <svg class="nav-dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                width="14" height="14">
+                <path d="M7 17L17 7M17 7H7M17 7v10" />
+              </svg>
+            </a>
+            <div class="nav-dd-item nav-dd-petro nav-dd-soon" role="menuitem">
+              <span class="nav-dd-dot nav-dd-dot--petro"></span>
+              <span class="nav-dd-info">
+                <span class="nav-dd-name">ARAR Petrochemicals</span>
+              </span>
+              <span class="nav-dd-soon-badge">Soon</span>
+            </div>
+          </div>
+        </div>
         <a href="index.html#clients">Partners</a>
+        <a href="careers.html" class="active" style="color: var(--deep-red);">Careers</a>
         <a href="index.html#contact">Contact</a>
-        <a href="careers.html" class="active" style="color: var(--color-primary);">Careers</a>
       </div>
       <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
         <span></span>
@@ -44,10 +93,31 @@
     <a href="index.html#about" class="mobile-nav-link">About</a>
     <a href="index.html#services" class="mobile-nav-link">Services</a>
     <a href="index.html#stats" class="mobile-nav-link">Experience</a>
-    <a href="index.html#all-services" class="mobile-nav-link">Solutions</a>
+    <!-- Companies accordion -->
+    <div class="mobile-companies" id="mobileCompanies">
+      <button class="mobile-companies-trigger" id="mobileCompaniesTrigger">
+        Companies
+        <svg class="mobile-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          width="14" height="14">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      <div class="mobile-companies-list" id="mobileCompaniesList">
+        <a href="utility.html" class="mobile-company-link mobile-company-utility">
+          <span class="mobile-co-dot mobile-co-dot--utility"></span>ARAR Utility Co.
+        </a>
+        <a href="https://www.ararinfra.com/" target="_blank" rel="noopener noreferrer"
+          class="mobile-company-link mobile-company-infra">
+          <span class="mobile-co-dot mobile-co-dot--infra"></span>ARAR Infra Co.
+        </a>
+        <span class="mobile-company-link mobile-company-petro mobile-company-soon">
+          <span class="mobile-co-dot mobile-co-dot--petro"></span>ARAR Petrochemicals <em>(Soon)</em>
+        </span>
+      </div>
+    </div>
     <a href="index.html#clients" class="mobile-nav-link">Partners</a>
-    <a href="index.html#contact" class="mobile-nav-link">Contact</a>
     <a href="careers.html" class="mobile-nav-link active">Careers</a>
+    <a href="index.html#contact" class="mobile-nav-link">Contact</a>
   </div>
 
 
@@ -117,6 +187,17 @@
             </ul>
           </div>
 
+          <!-- Our Companies -->
+          <div class="footer-col">
+            <h4>Our Companies</h4>
+            <ul>
+              <li><a href="utility.html">ARAR Utility Co.</a></li>
+              <li><a href="https://www.ararinfra.com/" target="_blank" rel="noopener noreferrer">ARAR Infra Co.</a></li>
+              <li><a href="index.html#showcase">Our Subsidiaries</a></li>
+              <li><a href="index.html#clients">Partners</a></li>
+            </ul>
+          </div>
+
           <!-- Contact -->
           <div class="footer-col">
             <h4>Dubai Office</h4>
@@ -164,7 +245,7 @@
     <!-- Footer Bottom -->
     <div class="footer-bottom">
       <div class="container">
-        <p>&copy; 2024 ARAR Group. All rights reserved.</p>
+        <p>&copy; 2026 ARAR Group. All rights reserved.</p>
         <div class="footer-bottom-links">
           <a href="#">Privacy Policy</a>
           <a href="#">Terms of Service</a>

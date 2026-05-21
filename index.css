@@ -216,6 +216,11 @@ ul {
   color: var(--white);
 }
 
+/* Active nav link (set by scroll spy JS) */
+.nav-links a.nav-active {
+  color: var(--deep-red);
+}
+
 .nav-social {
   display: flex;
   align-items: center;
