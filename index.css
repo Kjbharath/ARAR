@@ -4263,8 +4263,10 @@ select,
 
 .chairman-split-left {
   flex: 1;
-  background-size: cover;
-  background-position: center;
+  background-size: contain;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-color: var(--clean-black);
   position: relative;
   display: flex;
   align-items: flex-end;
@@ -4274,7 +4276,7 @@ select,
 .chairman-left-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
   z-index: 1;
 }
 
@@ -4282,6 +4284,10 @@ select,
   position: relative;
   z-index: 2;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
 }
 
 .chairman-tag {
