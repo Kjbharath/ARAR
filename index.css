@@ -4260,11 +4260,10 @@ select,
   flex-direction: row;
   min-height: 80vh;
 }
-
 .chairman-split-left {
   flex: 1;
-  background-size: contain;
-  background-position: bottom center;
+  background-size: cover;
+  background-position: center bottom;
   background-repeat: no-repeat;
   background-color: var(--clean-black);
   position: relative;
