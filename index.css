@@ -2692,7 +2692,7 @@ ul {
   height: var(--logo-size);
   /* Move to centre, then rotate to angle, then push outward by half the wheel */
   transform:
-    translate(-50%, -50%) rotate(calc(var(--i) * 45deg)) translateY(calc(var(--wheel-size) / -2)) rotate(calc(var(--i) * -45deg));
+    translate(-50%, -50%) rotate(calc(var(--i) * (360deg / var(--total-logos, 8)))) translateY(calc(var(--wheel-size) / -2)) rotate(calc(var(--i) * -(360deg / var(--total-logos, 8))));
   /* counter-rotate so logo stays upright */
 }
 
