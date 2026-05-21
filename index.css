@@ -4259,11 +4259,10 @@ select,
   display: flex;
   flex-direction: row;
   min-height: 80vh;
-}
-.chairman-split-left {
-  flex: 1;
+}.chairman-split-left {
+  flex: 1.2;
   background-size: cover;
-  background-position: center bottom;
+  background-position: left center;
   background-repeat: no-repeat;
   background-color: var(--clean-black);
   position: relative;
