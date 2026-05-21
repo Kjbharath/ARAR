@@ -4,7 +4,7 @@
    ============================================ */
 
 /* ---- Google Fonts ---- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Loaded via <link> in HTML <head> to avoid render-blocking CSS @import */
 
 /* ---- CSS Custom Properties ---- */
 :root {
@@ -243,7 +243,7 @@ ul {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   color: var(--off-white);
-  padding: 0 !important;
+  padding: 0;
   transition: all 0.35s var(--ease-spring);
   position: relative;
   overflow: hidden;
@@ -265,7 +265,7 @@ ul {
 }
 
 .nav-social a:hover {
-  color: var(--white) !important;
+  color: var(--white);
   transform: translateY(-3px) rotate(8deg) scale(1.15);
   border-color: var(--deep-red);
   box-shadow: 0 6px 20px var(--deep-red-glow);
@@ -580,6 +580,12 @@ ul {
   background: none;
   border: none;
   padding: 4px;
+  border-radius: 4px;
+}
+
+.hamburger:focus-visible {
+  outline: 2px solid var(--deep-red);
+  outline-offset: 3px;
 }
 
 .hamburger span {
@@ -779,11 +785,6 @@ ul {
   opacity: 0 !important;
 }
 
-.zoom-transitioning .logo-intro-droplets {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
 .zoom-transitioning .zoom-scroll-hint {
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -841,18 +842,6 @@ ul {
     transform: rotate(45deg) translateY(5px);
     opacity: 1;
   }
-}
-
-
-/* ---- Droplets ---- */
-.logo-intro-droplets {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  width: 100%;
-  height: 100%;
-  display: block;
 }
 
 

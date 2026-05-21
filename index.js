@@ -3,6 +3,26 @@
    Interactive Functionality
    ============================================ */
 
+/* ---- Visibility-gate helper ----
+   Wraps requestAnimationFrame so all animation loops
+   automatically pause when the tab is hidden and
+   resume when it becomes visible again.              */
+let _pageVisible = !document.hidden;
+document.addEventListener('visibilitychange', () => {
+    _pageVisible = !document.hidden;
+});
+
+function rafLoop(fn) {
+    let rafId;
+    function tick(ts) {
+        if (_pageVisible) fn(ts);
+        rafId = requestAnimationFrame(tick);
+    }
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId); // returns a cancel fn
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Sticky Navigation ----
@@ -24,21 +44,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Mobile Navigation ----
     const hamburger = document.getElementById('hamburger');
     const mobileNav = document.getElementById('mobileNav');
-    const mobileLinks = mobileNav.querySelectorAll('a');
+    const mobileLinks = mobileNav ? mobileNav.querySelectorAll('a') : [];
 
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        mobileNav.classList.toggle('active');
-        document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
-    });
+    function closeMobileNav() {
+        if (!hamburger || !mobileNav) return;
+        hamburger.classList.remove('active');
+        mobileNav.classList.remove('active');
+        document.body.style.overflow = '';
+    }
 
-    mobileLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            mobileNav.classList.remove('active');
-            document.body.style.overflow = '';
+    if (hamburger && mobileNav) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+            document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
         });
-    });
+
+        // BUG-08 FIX: Close nav on ALL link clicks (including external target="_blank")
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                // Small delay so the browser can start opening the new tab first
+                setTimeout(closeMobileNav, 50);
+            });
+        });
+    }
 
 
     // ---- Companies Dropdown (click toggle + outside-click close) ----
@@ -86,9 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // (Chairman hero parallax removed — elements do not exist on this page)
-
-
     // ---- Scroll Animations (Intersection Observer) ----
     const fadeElements = document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right');
 
@@ -111,52 +137,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ---- Animated Counters ----
+    // BUG-07 FIX: Use a per-section observer so multiple .stats sections each trigger independently
     const counters = document.querySelectorAll('.counter');
-    let countersAnimated = false;
 
-    const counterObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !countersAnimated) {
-                countersAnimated = true;
-                animateCounters();
-                counterObserver.disconnect();
-            }
-        });
-    }, {
-        threshold: 0.3
-    });
-
-    // Observe ALL .stats sections (works for both index.html and utility.html)
-    const statsSections = document.querySelectorAll('.stats');
-    statsSections.forEach(s => counterObserver.observe(s));
-
-
-    function animateCounters() {
-        counters.forEach(counter => {
+    function animateCountersIn(sectionEl) {
+        const sectionCounters = sectionEl.querySelectorAll('.counter');
+        sectionCounters.forEach(counter => {
+            if (counter.dataset.animated) return; // already done
+            counter.dataset.animated = '1';
             const target = parseInt(counter.getAttribute('data-target'));
-            const duration = 2000; // 2 seconds
+            const duration = 2000;
             const startTime = performance.now();
 
             function updateCounter(timestamp) {
                 const elapsed = timestamp - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-
-                // Easing function (ease-out cubic)
                 const eased = 1 - Math.pow(1 - progress, 3);
                 const current = Math.floor(eased * target);
-
                 counter.textContent = current;
-
                 if (progress < 1) {
                     requestAnimationFrame(updateCounter);
                 } else {
                     counter.textContent = target;
                 }
             }
-
             requestAnimationFrame(updateCounter);
         });
     }
+
+    const statsSections = document.querySelectorAll('.stats');
+    statsSections.forEach(section => {
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCountersIn(entry.target);
+                    sectionObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+        sectionObserver.observe(section);
+    });
 
 
     // ---- Smooth Scroll for Anchor Links ----
@@ -168,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetEl = document.querySelector(targetId);
             if (targetEl) {
                 e.preventDefault();
-                const navHeight = navbar.offsetHeight;
+                const navHeight = navbar ? navbar.offsetHeight : 0;
                 const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight;
 
                 window.scrollTo({
@@ -185,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsSection = document.querySelector('.stats');
     if (statsBg && statsSection) {
         window.addEventListener('scroll', () => {
+            if (!_pageVisible) return;
             const scrolled = window.pageYOffset;
             const statsRect = statsSection.getBoundingClientRect();
             if (statsRect.top < window.innerHeight && statsRect.bottom > 0) {
@@ -201,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-links a:not(.nav-cta)');
 
     window.addEventListener('scroll', () => {
+        if (!_pageVisible) return;
         let current = '';
         sections.forEach(section => {
             const sectionTop = section.offsetTop - 150;
@@ -218,92 +240,95 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
 
-    // (Hero preload removed — single chairman image loads with the page)
-
     // ---- About Section Scroll Gallery ----
-    const aboutGallery = document.getElementById('aboutGallery');
-    const gallerySlides = document.querySelectorAll('.about-gallery-slide');
-    const galleryDots = document.querySelectorAll('.about-gallery-dot');
-    let currentGallerySlide = 0;
-    const totalGallerySlides = gallerySlides.length;
-    let isInsideGallery = false;
-    let galleryScrollCooldown = false;
+    function initGallery(galleryId, trackId, dotsId) {
+        const gallery = document.getElementById(galleryId);
+        if (!gallery) return;
+        const slides = gallery.querySelectorAll('.about-gallery-slide');
+        const dots   = gallery.querySelectorAll('.about-gallery-dot');
+        let current  = 0;
+        const total  = slides.length;
+        let scrollCooldown = false;
+        let autoPlayInterval = null;
 
-    function goToGallerySlide(index) {
-        gallerySlides.forEach(s => s.classList.remove('active'));
-        galleryDots.forEach(d => d.classList.remove('active'));
-        currentGallerySlide = index;
-        gallerySlides[currentGallerySlide].classList.add('active');
-        galleryDots[currentGallerySlide].classList.add('active');
-    }
+        function goTo(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+            current = (index + total) % total;
+            slides[current].classList.add('active');
+            if (dots[current]) dots[current].classList.add('active');
+        }
 
-    if (aboutGallery && totalGallerySlides > 0) {
-        // Track if cursor is inside the gallery
-        aboutGallery.addEventListener('mouseenter', () => { isInsideGallery = true; });
-        aboutGallery.addEventListener('mouseleave', () => { isInsideGallery = false; });
+        if (total === 0) return;
 
-        // Scroll within box — intercept wheel events
-        aboutGallery.addEventListener('wheel', (e) => {
-            // Always prevent page scroll when cursor is inside the gallery
+        // BUG-03 FIX: Only preventDefault when we are not at a boundary
+        // Also uses { passive: false } only for this element
+        gallery.addEventListener('wheel', (e) => {
+            const atStart = current === 0 && e.deltaY < 0;
+            const atEnd   = current === total - 1 && e.deltaY > 0;
+            if (atStart || atEnd) return; // let page scroll normally
+
             e.preventDefault();
             e.stopPropagation();
 
-            if (galleryScrollCooldown) return;
-            galleryScrollCooldown = true;
+            if (scrollCooldown) return;
+            scrollCooldown = true;
 
             if (e.deltaY > 0) {
-                const next = (currentGallerySlide + 1) % totalGallerySlides;
-                goToGallerySlide(next);
+                goTo(current + 1);
             } else {
-                const prev = (currentGallerySlide - 1 + totalGallerySlides) % totalGallerySlides;
-                goToGallerySlide(prev);
+                goTo(current - 1);
             }
-
-            setTimeout(() => { galleryScrollCooldown = false; }, 500);
+            setTimeout(() => { scrollCooldown = false; }, 500);
         }, { passive: false });
 
         // Dot click navigation
-        galleryDots.forEach(dot => {
+        dots.forEach(dot => {
             dot.addEventListener('click', () => {
                 const target = parseInt(dot.getAttribute('data-index'));
-                if (target !== currentGallerySlide) {
-                    goToGallerySlide(target);
-                }
+                if (target !== current) goTo(target);
             });
         });
 
-        // ---- RadiusOnScroll Effect (scroll-driven, not rAF loop) ----
-        const startRadius = 0;    // starts sharp / full-bleed
-        const endRadius = 48;     // rounds to 48px
-
-        function updateRadiusOnScroll() {
-            const rect = aboutGallery.getBoundingClientRect();
+        // Radius-on-scroll effect
+        const startRadius = 0;
+        const endRadius = 48;
+        function updateRadius() {
+            const rect = gallery.getBoundingClientRect();
             const windowH = window.innerHeight;
-
-            // Start when bottom of element enters viewport, end when top reaches center
-            const triggerStart = windowH;   // element bottom enters viewport
-            const triggerEnd = windowH * 0.3; // element is well into view
-
-            // Progress: 0 = just entering, 1 = fully in view
+            const triggerStart = windowH;
+            const triggerEnd = windowH * 0.3;
             const progress = Math.min(Math.max(
                 (triggerStart - rect.top) / (triggerStart - triggerEnd),
                 0), 1);
+            gallery.style.borderRadius = (startRadius + (endRadius - startRadius) * progress) + 'px';
+        }
+        window.addEventListener('scroll', updateRadius, { passive: true });
+        updateRadius();
 
-            const currentRadius = startRadius + (endRadius - startRadius) * progress;
-            aboutGallery.style.borderRadius = currentRadius + 'px';
+        // BUG-04 FIX: Store interval, pause on hover + tab hide
+        function startAutoPlay() {
+            if (autoPlayInterval) return;
+            autoPlayInterval = setInterval(() => {
+                if (_pageVisible) goTo(current + 1);
+            }, 4000);
+        }
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = null;
         }
 
-        // Drive radius from scroll, not an infinite rAF loop
-        window.addEventListener('scroll', updateRadiusOnScroll, { passive: true });
-        updateRadiusOnScroll(); // run once on load
+        gallery.addEventListener('mouseenter', stopAutoPlay);
+        gallery.addEventListener('mouseleave', startAutoPlay);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopAutoPlay(); else startAutoPlay();
+        });
 
-        // ---- About Gallery Auto-Play ----
-        setInterval(() => {
-            const next = (currentGallerySlide + 1) % totalGallerySlides;
-            goToGallerySlide(next);
-        }, 4000);
+        startAutoPlay();
     }
 
+    initGallery('aboutGallery',   'aboutGalleryTrack',   'aboutGalleryDots');
+    initGallery('utilityGallery', 'utilityGalleryTrack', 'utilityGalleryDots');
 
 
     // ---- Mouse Trail ----
@@ -313,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < numDots; i++) {
         const dot = document.createElement('div');
         dot.className = 'mouse-trail-dot';
+        dot.setAttribute('aria-hidden', 'true'); // A11Y-07 FIX
         document.body.appendChild(dot);
         trailDots.push({
             element: dot,
@@ -329,7 +355,8 @@ document.addEventListener('DOMContentLoaded', () => {
         mouseY = e.clientY;
     });
 
-    function animateTrail() {
+    // PERF-01 FIX: use rafLoop so trail pauses when tab is hidden
+    rafLoop(() => {
         let x = mouseX;
         let y = mouseY;
 
@@ -345,11 +372,8 @@ document.addEventListener('DOMContentLoaded', () => {
             x += (nextDot.x - x) * 0.35;
             y += (nextDot.y - y) * 0.35;
         });
+    });
 
-        requestAnimationFrame(animateTrail);
-    }
-
-    animateTrail();
 
     // ---- Back to Top Button ----
     const backToTopBtn = document.getElementById('backToTop');
@@ -364,53 +388,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: true });
 
         backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 
 
-
-
     // ---- Electric Cables Canvas ----
     (function initElectricCables() {
-        // Targets the logo-intro canvas on index.html OR the hero canvas on utility.html
         const canvas = document.getElementById('logoDroplets') || document.getElementById('utilityElecCanvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
         const CFG = {
-            count: 6,                 // Fewer, thicker cables for realistic focus
-            thickness: 45,            // Very thick industrial cable base
-            pulseSpeed: 400,          // Speed of electrical surge
-            pulseLength: 350,         // Length of the surge
-            cableBase: [20, 20, 20],  // Almost black matte rubber
-            cableHighlight: [70, 70, 70], // Light reflection on rubber
-            cableGroove: [10, 10, 10], // Deep shadows for ribbed texture
-            elecCore: [180, 220, 255],// Softer, pale blue core (less bright white)
-            elecGlow: [0, 80, 180]    // Deeper, less intense cyan/blue glow
+            count: 6,
+            thickness: 45,
+            pulseSpeed: 400,
+            pulseLength: 350,
+            cableBase: [20, 20, 20],
+            cableHighlight: [70, 70, 70],
+            cableGroove: [10, 10, 10],
+            elecCore: [180, 220, 255],
+            elecGlow: [0, 80, 180]
         };
 
         function resize() {
             const s = canvas.parentElement;
-            canvas.width = s.offsetWidth;
+            canvas.width  = s.offsetWidth;
             canvas.height = s.offsetHeight;
         }
         resize();
         window.addEventListener('resize', resize);
 
-        // Seeded PRNG to keep the cable background consistent across refreshes
-        let seed = 42;
-        function seededRandom() {
-            let t = seed += 0x6D2B79F5;
+        // BUG-05 FIX: Separate the generation seed from the draw-time PRNG.
+        // drawSeed is used exclusively during draw (jitter) and reset each frame
+        // so it never contaminates the generationSeed.
+        let generationSeed = 42;
+        let drawSeed = 0;
+
+        function seededRandom(seedRef) {
+            let t = seedRef.value += 0x6D2B79F5;
             t = Math.imul(t ^ (t >>> 15), t | 1);
             t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
             return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
         }
 
-        function rand(min, max) { return seededRandom() * (max - min) + min; }
+        function genRand(min, max) {
+            return seededRandom({ value: generationSeed, get value() { return generationSeed; }, set value(v) { generationSeed = v; } }) * (max - min) + min;
+        }
+
+        // Simpler wrapper objects so we can pass by reference
+        const genSeedRef  = { value: 42 };
+        const drawSeedRef = { value: 0 };
+
+        function rand(min, max, ref) {
+            return seededRandom(ref) * (max - min) + min;
+        }
+
         function rgba(rgb, a) {
             return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${Math.min(1, Math.max(0, a))})`;
         }
@@ -418,36 +451,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const cables = [];
 
         function generateCables() {
-            seed = 42; // Reset seed every time we generate cables
+            genSeedRef.value = 42; // Reset only the generation seed
             cables.length = 0;
             const w = canvas.width;
             const h = canvas.height;
 
             for (let i = 0; i < CFG.count; i++) {
-                // Diagonal heavy droop
-                const startX = rand(w * 0.1, w * 0.8);
+                const startX = rand(w * 0.1, w * 0.8, genSeedRef);
                 const startY = -200;
-
-                const endX = startX - rand(w * 0.2, w * 0.6);
-                const endY = h + 200;
-
-                const cp1x = startX + rand(-200, 200);
-                const cp1y = h * 0.3;
-
-                const cp2x = endX + rand(-200, 200);
-                const cp2y = h * 0.7;
+                const endX   = startX - rand(w * 0.2, w * 0.6, genSeedRef);
+                const endY   = h + 200;
+                const cp1x   = startX + rand(-200, 200, genSeedRef);
+                const cp1y   = h * 0.3;
+                const cp2x   = endX + rand(-200, 200, genSeedRef);
+                const cp2y   = h * 0.7;
 
                 const pts = [];
-                const steps = 150; // High resolution for texture calculation
+                const steps = 150;
                 let totalLen = 0;
 
                 for (let t = 0; t <= steps; t++) {
                     const pct = t / steps;
                     const u = 1 - pct;
-                    const x = u * u * u * startX + 3 * u * u * pct * cp1x + 3 * u * pct * pct * cp2x + pct * pct * pct * endX;
-                    const y = u * u * u * startY + 3 * u * u * pct * cp1y + 3 * u * pct * pct * cp2y + pct * pct * pct * endY;
+                    const x = u*u*u*startX + 3*u*u*pct*cp1x + 3*u*pct*pct*cp2x + pct*pct*pct*endX;
+                    const y = u*u*u*startY + 3*u*u*pct*cp1y + 3*u*pct*pct*cp2y + pct*pct*pct*endY;
 
-                    // Calculate tangent/normal for 3D drawing
                     let dx = 0, dy = 1;
                     if (t > 0) {
                         dx = x - pts[t - 1].x;
@@ -465,10 +493,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 cables.push({
                     pts,
                     totalLen,
-                    thickness: rand(CFG.thickness * 0.8, CFG.thickness * 1.2),
-                    pulseDist: rand(0, totalLen),
-                    speed: CFG.pulseSpeed * rand(0.8, 1.2),
-                    depth: rand(0.6, 1.2) // For parallax and shadow
+                    thickness: rand(CFG.thickness * 0.8, CFG.thickness * 1.2, genSeedRef),
+                    pulseDist: rand(0, totalLen, genSeedRef),
+                    speed: CFG.pulseSpeed * rand(0.8, 1.2, genSeedRef),
+                    depth: rand(0.6, 1.2, genSeedRef)
                 });
             }
         }
@@ -483,14 +511,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         let last = null;
-        function draw(ts) {
+        // PERF-01 FIX: use rafLoop so cable animation pauses when tab hidden
+        rafLoop((ts) => {
             if (!last) last = ts;
             const dt = (ts - last) / 1000;
             last = ts;
 
-            // Define "one background" fill — plain black to emphasize cables
             ctx.fillStyle = '#010101';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // BUG-05 FIX: reset drawSeedRef each frame so jitter is consistent
+            drawSeedRef.value = 1337;
 
             cables.forEach(c => {
                 c.pulseDist += c.speed * dt;
@@ -523,14 +554,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.lineWidth = c.thickness;
                 ctx.stroke();
 
-                // 3. Corrugated Texture (ribs along the cable)
+                // 3. Corrugated Texture
                 const ribSpacing = 8;
                 ctx.lineWidth = 3;
                 ctx.strokeStyle = rgba(CFG.cableGroove, 0.9);
                 for (let i = 0; i < pts.length; i++) {
                     if (Math.floor(pts[i].len) % ribSpacing < 2) {
                         const p = pts[i];
-                        // Draw a perpendicular line across the thickness
                         const hw = c.thickness * 0.45;
                         ctx.beginPath();
                         ctx.moveTo(p.x - p.nx * hw, p.y - p.ny * hw);
@@ -539,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // 4. Highlight for 3D cylinder curve
+                // 4. Highlight
                 ctx.beginPath();
                 ctx.moveTo(pts[0].x - pts[0].nx * c.thickness * 0.2, pts[0].y - pts[0].ny * c.thickness * 0.2);
                 for (let i = 1; i < pts.length; i++) {
@@ -549,9 +579,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.lineWidth = c.thickness * 0.3;
                 ctx.stroke();
 
-                // 5. Electricity Surge (Arcs jumping around the cable surface)
+                // 5. Electricity Surge
                 const pStart = c.pulseDist - CFG.pulseLength;
-                const pEnd = c.pulseDist;
+                const pEnd   = c.pulseDist;
 
                 if (pEnd > 0 && pStart < c.totalLen) {
                     const surgePts = pts.filter(p => p.len >= pStart && p.len <= pEnd);
@@ -577,18 +607,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         ctx.filter = 'blur(4px)';
                         ctx.stroke();
 
-                        // Core white electric spark
+                        // Core spark with jitter (BUG-05 FIX: uses isolated drawSeedRef)
                         ctx.strokeStyle = rgba(CFG.elecCore, 1);
-                        ctx.lineWidth = c.thickness * 0.25; // slightly thinner than the 0.6 to look sharper on thick cable
+                        ctx.lineWidth = c.thickness * 0.25;
                         ctx.filter = 'none';
-                        // Add some jitter to the white core to make it look "crackling"
                         ctx.beginPath();
                         ctx.moveTo(surgePts[0].x, surgePts[0].y);
                         for (let i = 1; i < surgePts.length; i++) {
-                            // High-frequency noise jitter
-                            const jitterX = rand(-2, 2);
-                            const jitterY = rand(-2, 2);
-                            ctx.lineTo(surgePts[i].x + jitterX, surgePts[i].y + jitterY);
+                            const jx = rand(-2, 2, drawSeedRef);
+                            const jy = rand(-2, 2, drawSeedRef);
+                            ctx.lineTo(surgePts[i].x + jx, surgePts[i].y + jy);
                         }
                         ctx.stroke();
 
@@ -597,23 +625,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+        });
 
-            requestAnimationFrame(draw);
-        }
-
-        requestAnimationFrame(draw);
     })();
 
 
     // ---- Subsidiaries Radial Flow Diagram ----
     (function initRadialFlow() {
-        const svg = document.getElementById('radialFlowSvg');
-        const root = document.getElementById('rfRoot');
+        const svg      = document.getElementById('radialFlowSvg');
+        const root     = document.getElementById('rfRoot');
         const children = document.querySelectorAll('.rf-child');
         if (!svg || !root || !children.length) return;
 
         const branchColors = { utility: '#ffc832', petro: '#50a0ff', infra: '#50dc82' };
         let flowPaths = [];
+        let isColumnLayout = false;
 
         function getBBox(el) {
             const wRect = svg.getBoundingClientRect();
@@ -622,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function rightMid(el) { const b = getBBox(el); return { x: b.left + b.w, y: b.top + b.h / 2 }; }
-        function leftMid(el) { const b = getBBox(el); return { x: b.left, y: b.top + b.h / 2 }; }
+        function leftMid(el)  { const b = getBBox(el); return { x: b.left,       y: b.top + b.h / 2 }; }
 
         function cubicD(x1, y1, x2, y2) {
             const cx = x1 + (x2 - x1) * 0.6;
@@ -639,23 +665,20 @@ document.addEventListener('DOMContentLoaded', () => {
             while (svg.firstChild) svg.removeChild(svg.firstChild);
             flowPaths = [];
 
-            // Check if wrapper is in column layout (mobile)
             const wrapper = document.querySelector('.radial-flow-wrapper');
-            if (!wrapper || getComputedStyle(wrapper).flexDirection === 'column') return;
+            isColumnLayout = !wrapper || getComputedStyle(wrapper).flexDirection === 'column';
+            if (isColumnLayout) return;
 
             const from = rightMid(root);
 
             children.forEach((child, i) => {
                 const branch = child.dataset.branch;
-                const color = branchColors[branch] || '#D22630';
+                const color  = branchColors[branch] || '#D22630';
                 const to = leftMid(child);
-                const d = cubicD(from.x, from.y, to.x, to.y);
+                const d  = cubicD(from.x, from.y, to.x, to.y);
 
-                // Base dim track
                 svg.appendChild(mkel('path', { d, fill: 'none', stroke: 'rgba(255,255,255,0.07)', 'stroke-width': '2', 'stroke-linecap': 'round' }));
-                // Coloured glow
                 svg.appendChild(mkel('path', { d, fill: 'none', stroke: color, 'stroke-width': '2', opacity: '0.2', 'stroke-linecap': 'round' }));
-                // Flowing pulse dash
                 const pulse = mkel('path', { d, fill: 'none', stroke: color, 'stroke-width': '3', 'stroke-linecap': 'round', 'stroke-dasharray': '16 400', 'stroke-dashoffset': '400', opacity: '0.9' });
                 svg.appendChild(pulse);
                 flowPaths.push({ el: pulse, branch, color, offset: 400 - i * 133 });
@@ -663,7 +686,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let lastTs2;
-        function animateFlow(ts) {
+        // PERF-01 FIX: use rafLoop + BUG-06 FIX: guard against column layout
+        rafLoop((ts) => {
+            if (isColumnLayout || !flowPaths.length) return;
             if (!lastTs2) lastTs2 = ts;
             const dt = ts - lastTs2;
             lastTs2 = ts;
@@ -672,8 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (p.offset < -16) p.offset = 416;
                 p.el.setAttribute('stroke-dashoffset', p.offset.toFixed(1));
             });
-            requestAnimationFrame(animateFlow);
-        }
+        });
 
         function setupBranchHover() {
             children.forEach((child, i) => {
@@ -696,11 +720,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', () => { clearTimeout(rfTimer); rfTimer = setTimeout(drawConnectors, 150); });
 
         drawConnectors();
-        requestAnimationFrame(animateFlow);
         setupBranchHover();
         setTimeout(drawConnectors, 500);
         setTimeout(drawConnectors, 1200);
-
 
     })();
 
@@ -708,14 +730,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Zoom-Into-Logo Transition ----
     (function initZoomTransition() {
         const introSection = document.getElementById('logo-intro');
-        const logoWrap = document.getElementById('logo3dWrap');
-        const overlay = document.getElementById('zoomOverlay');
-        const nextSection = document.getElementById('showcase');
+        const logoWrap     = document.getElementById('logo3dWrap');
+        const overlay      = document.getElementById('zoomOverlay');
+        const nextSection  = document.getElementById('showcase');
 
         if (!introSection || !logoWrap || !overlay || !nextSection) return;
 
         let isTransitioning = false;
         let hasTransitioned = false;
+        let overlayTimer    = null; // BUG-01 FIX: store timer so we can cancel it
+        let resetTimer      = null;
+        let safetyTimer     = null;
+
+        function clearAllTimers() {
+            clearTimeout(overlayTimer);
+            clearTimeout(resetTimer);
+            clearTimeout(safetyTimer);
+            overlayTimer = resetTimer = safetyTimer = null;
+        }
+
+        function resetZoomState() {
+            clearAllTimers();
+            hasTransitioned = false;
+            isTransitioning = false;
+            logoWrap.style.transition  = 'none';
+            logoWrap.style.transform   = '';
+            logoWrap.style.animation   = '';
+            logoWrap.style.borderRadius = '';
+            introSection.classList.remove('zoom-transitioning');
+            overlay.classList.remove('visible');
+            document.body.style.overflow = '';
+        }
 
         function triggerZoom() {
             if (isTransitioning || hasTransitioned) return;
@@ -728,34 +773,31 @@ document.addEventListener('DOMContentLoaded', () => {
             logoWrap.style.animation = 'none';
             void logoWrap.offsetHeight; // force reflow
 
-            // Scale up — "fall into" the logo
             logoWrap.style.transform = 'scale(18)';
 
-            // Black overlay fades in partway through the zoom
-            const overlayTimer = setTimeout(() => { overlay.classList.add('visible'); }, 480);
+            // BUG-01 FIX: store overlayTimer so it can be cancelled
+            overlayTimer = setTimeout(() => { overlay.classList.add('visible'); }, 480);
 
-            // After zoom peak: jump to section 2 and reset everything
-            const resetTimer = setTimeout(() => {
+            resetTimer = setTimeout(() => {
                 hasTransitioned = true;
+                clearTimeout(overlayTimer);
 
                 nextSection.scrollIntoView({ behavior: 'instant', block: 'start' });
 
-                // Reset logo state silently under the black overlay
                 introSection.classList.remove('zoom-transitioning');
-                logoWrap.style.transition = 'none';
-                logoWrap.style.transform = '';
-                logoWrap.style.animation = '';
+                logoWrap.style.transition   = 'none';
+                logoWrap.style.transform    = '';
+                logoWrap.style.animation    = '';
                 logoWrap.style.borderRadius = '';
-                document.body.style.overflow = ''; // Always clear overflow
+                document.body.style.overflow = '';
 
-                // Reveal section 2 by fading overlay away
                 requestAnimationFrame(() => { overlay.classList.remove('visible'); });
 
                 isTransitioning = false;
             }, 920);
 
-            // Safety net: if anything goes wrong, always restore scroll after 1.5s
-            setTimeout(() => {
+            // Safety net
+            safetyTimer = setTimeout(() => {
                 if (document.body.style.overflow === 'hidden') {
                     document.body.style.overflow = '';
                     isTransitioning = false;
@@ -763,16 +805,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1500);
         }
 
+        // BUG-02 FIX: Reset state when returning via browser Back (bfcache)
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) {
+                resetZoomState();
+            }
+        });
+
         // Reset state when user scrolls back to top
         window.addEventListener('scroll', () => {
             if (window.scrollY < 5) {
-                hasTransitioned = false;
-                logoWrap.style.transition = 'none';
-                logoWrap.style.transform = '';
-                logoWrap.style.animation = '';
-                logoWrap.style.borderRadius = '';
-                introSection.classList.remove('zoom-transitioning');
-                overlay.classList.remove('visible');
+                resetZoomState();
             }
         }, { passive: true });
 
@@ -800,5 +843,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     })();
 
-});
 
+});
