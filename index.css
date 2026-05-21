@@ -4245,4 +4245,269 @@ select,
     padding: 24px !important;
   }
 }
+
+
+/* ============================================
+   CHAIRMAN'S MESSAGE SECTION
+   ============================================ */
+.chairman-section {
+  background: var(--clean-black);
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Background elements for rich aesthetics */
+.chairman-section::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 50%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(210, 38, 48, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.chairman-section::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  right: -10%;
+  width: 50%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(210, 38, 48, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* The Grid Layout */
+.chairman-grid {
+  display: grid;
+  grid-template-columns: 4.5fr 7.5fr;
+  gap: 80px;
+  align-items: flex-start;
+}
+
+/* Photo Column - Fully visible, uncropped, elegant framed card */
+.chairman-photo-column {
+  position: sticky;
+  top: 100px;
+}
+
+.chairman-photo-frame {
+  position: relative;
+  border-radius: var(--radius-lg);
+  padding: 8px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(210, 38, 48, 0.15) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 
+              0 0 30px rgba(210, 38, 48, 0.05);
+  overflow: hidden;
+  transition: transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out);
+}
+
+.chairman-photo-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(210, 38, 48, 0.4) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.chairman-photo-frame:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 
+              0 0 40px rgba(210, 38, 48, 0.15);
+}
+
+/* Ensure portrait displays 100% visible, no crop, keeps 1:1 original square ratio */
+.chairman-photo-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: calc(var(--radius-lg) - 6px);
+  object-fit: contain;
+  background: rgba(10, 10, 10, 0.5);
+  transition: transform 0.8s var(--ease-out);
+}
+
+.chairman-photo-frame:hover .chairman-photo-img {
+  transform: scale(1.02);
+}
+
+/* Content Column (Right Column) */
+.chairman-content-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.chairman-content-column .section-tag {
+  margin-bottom: 16px;
+}
+
+.chairman-content-column .section-title {
+  margin-bottom: 40px;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  line-height: 1.2;
+}
+
+/* Message Card - Premium glassmorphic texture */
+.chairman-message-card {
+  position: relative;
+  background: rgba(18, 18, 18, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  padding: 50px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Translucent Giant Quote Mark in Background */
+.quote-mark-bg {
+  position: absolute;
+  top: -20px;
+  left: 20px;
+  font-size: 15rem;
+  font-family: serif;
+  color: var(--deep-red);
+  opacity: 0.08;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Letter Content */
+.chairman-letter-text {
+  position: relative;
+  z-index: 2;
+}
+
+.chairman-letter-text p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 24px;
+  font-weight: 300;
+  letter-spacing: 0.2px;
+}
+
+.chairman-letter-text p:first-of-type {
+  font-size: 1.15rem;
+  color: var(--white);
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.chairman-letter-text p:last-of-type {
+  margin-bottom: 0;
+}
+
+/* Refined Signature Area */
+.chairman-signature {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: relative;
+  z-index: 2;
+}
+
+.chairman-signature .sig-line {
+  width: 80px;
+  height: 2px;
+  background: var(--deep-red);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chairman-signature .sig-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--white);
+  transform: translateX(-100%);
+  animation: shine-sig 3s infinite;
+}
+
+.chairman-signature .sig-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  font-family: var(--font-family);
+}
+
+.chairman-signature .sig-title {
+  font-size: var(--fs-sm);
+  color: var(--deep-red-hover);
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Keyframes */
+@keyframes shine-sig {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .chairman-grid {
+    gap: 48px;
+  }
+  .chairman-message-card {
+    padding: 40px;
+  }
+}
+
+@media (max-width: 992px) {
+  .chairman-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .chairman-photo-column {
+    position: static;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .chairman-section {
+    padding: 80px 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .chairman-message-card {
+    padding: 30px 24px;
+  }
+  .chairman-content-column .section-title {
+    margin-bottom: 24px;
+  }
+  .chairman-letter-text p {
+    font-size: 0.98rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .chairman-letter-text p:first-of-type {
+    font-size: 1.05rem;
+  }
+  .chairman-signature {
+    margin-top: 36px;
+  }
+}
 
