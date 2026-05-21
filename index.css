@@ -116,6 +116,11 @@ ul {
   margin: 0 auto;
 }
 
+/* Utilities */
+.highlight {
+  color: var(--deep-red);
+}
+
 
 /* ============================================
    NAVIGATION
