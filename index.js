@@ -88,10 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Chairman Hero Parallax ----
     const chairmanBg = document.querySelector('.chairman-bg');
-    if (chairmanBg) {
+    const heroEl = document.getElementById('hero');
+    if (chairmanBg && heroEl) {
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
-            const heroHeight = document.getElementById('hero').offsetHeight;
+            const heroHeight = heroEl.offsetHeight;
             if (scrolled < heroHeight) {
                 const speed = 0.25;
                 chairmanBg.style.transform = `scale(1.05) translateY(${scrolled * speed}px)`;
