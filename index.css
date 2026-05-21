@@ -2690,9 +2690,9 @@ ul {
   left: 50%;
   width: var(--logo-size);
   height: var(--logo-size);
-  /* Move to centre, then rotate to angle, then push outward by half the wheel */
+  /* --angle is set per-slot in HTML (e.g. style="--angle: 32.73deg") */
   transform:
-    translate(-50%, -50%) rotate(calc(var(--i) * (360deg / var(--total-logos, 8)))) translateY(calc(var(--wheel-size) / -2)) rotate(calc(var(--i) * -(360deg / var(--total-logos, 8))));
+    translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(calc(var(--wheel-size) / -2)) rotate(calc(-1 * var(--angle, 0deg)));
   /* counter-rotate so logo stays upright */
 }
 
