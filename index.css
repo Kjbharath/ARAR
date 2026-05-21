@@ -4245,4 +4245,222 @@ select,
     padding: 24px !important;
   }
 }
+
+
+/* ============================================
+   CHAIRMAN — MODAL TRIGGER BUTTON
+   ============================================ */
+.chairman-modal-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-family);
+}
+
+/* ============================================
+   CHAIRMAN MESSAGE MODAL
+   ============================================ */
+
+/* Backdrop */
+.chairman-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 40px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.chairman-modal-overlay.is-open {
+  opacity: 1;
+}
+
+/* Panel */
+.chairman-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 1060px;
+  max-height: 90vh;
+  background: #111;
+  border: 1px solid rgba(210, 38, 48, 0.25);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(40px) scale(0.97);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 40px 80px rgba(0,0,0,0.8),
+    0 0 60px rgba(210, 38, 48, 0.08);
+}
+
+.chairman-modal-overlay.is-open .chairman-modal-panel {
+  transform: translateY(0) scale(1);
+}
+
+/* Close button */
+.chairman-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chairman-modal-close svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-muted);
+  transition: stroke var(--transition-fast);
+}
+
+.chairman-modal-close:hover {
+  background: rgba(210, 38, 48, 0.15);
+  border-color: rgba(210, 38, 48, 0.4);
+}
+
+.chairman-modal-close:hover svg {
+  stroke: var(--white);
+}
+
+/* Body */
+.chairman-modal-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+/* ── Left: Photo ── */
+.chairman-modal-left {
+  background: #0d0d0d;
+  border-right: 1px solid rgba(210, 38, 48, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.chairman-modal-photo-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 320px;
+  overflow: hidden;
+}
+
+.chairman-modal-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.chairman-modal-photo-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to top, #0d0d0d 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.chairman-modal-sig {
+  padding: 24px 28px 28px;
+}
+
+.chairman-modal-sig-bar {
+  width: 36px;
+  height: 2px;
+  background: var(--deep-red);
+  margin-bottom: 12px;
+}
+
+.chairman-modal-sig-name {
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.chairman-modal-sig-role {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ── Right: Message ── */
+.chairman-modal-right {
+  padding: clamp(36px, 4vw, 56px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.chairman-modal-title {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.25;
+  margin-bottom: 28px;
+}
+
+.chairman-modal-qmark {
+  margin-bottom: 28px;
+}
+
+.chairman-modal-qmark svg {
+  width: 32px;
+  height: 26px;
+  fill: var(--deep-red);
+  opacity: 0.8;
+}
+
+.chairman-modal-text {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chairman-modal-text p {
+  color: var(--text-muted);
+  font-size: clamp(0.9rem, 1vw, 0.98rem);
+  line-height: 1.85;
+}
+
+.chairman-modal-text p:first-child {
+  color: rgba(255,255,255,0.8);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .chairman-modal-body {
+    grid-template-columns: 1fr;
+  }
+  .chairman-modal-left {
+    border-right: none;
+    border-bottom: 1px solid rgba(210, 38, 48, 0.15);
+  }
+  .chairman-modal-photo-wrap {
+    min-height: 240px;
+  }
+}
 

@@ -356,6 +356,12 @@
                 <polyline points="12 5 19 12 12 19" />
               </svg>
             </a>
+            <button class="btn btn-primary chairman-modal-trigger" id="chairmanMsgBtn" aria-haspopup="dialog" aria-controls="chairmanModal">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              Read Message
+            </button>
           </div>
         </div>
       </div>
@@ -1075,5 +1081,92 @@
   <script src="index.js"></script>
 
 </body>
+
+<!-- ============ CHAIRMAN MESSAGE MODAL ============ -->
+<div class="chairman-modal-overlay" id="chairmanModal" role="dialog" aria-modal="true" aria-labelledby="chairmanModalTitle" hidden>
+  <div class="chairman-modal-panel">
+
+    <!-- Close button -->
+    <button class="chairman-modal-close" id="chairmanModalClose" aria-label="Close message">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <div class="chairman-modal-body">
+
+      <!-- Left: photo + sig -->
+      <div class="chairman-modal-left">
+        <div class="chairman-modal-photo-wrap">
+          <img src="img/clients/chairman.png" alt="Ramesh Muniyandi – Chairman, ARAR Group" class="chairman-modal-photo" />
+          <div class="chairman-modal-photo-fade"></div>
+        </div>
+        <div class="chairman-modal-sig">
+          <div class="chairman-modal-sig-bar"></div>
+          <p class="chairman-modal-sig-name">Ramesh Muniyandi</p>
+          <p class="chairman-modal-sig-role">Chairman, ARAR Group</p>
+        </div>
+      </div>
+
+      <!-- Right: message -->
+      <div class="chairman-modal-right">
+        <span class="section-tag" style="margin-bottom:16px"><span class="line"></span> Leadership</span>
+        <h2 class="chairman-modal-title" id="chairmanModalTitle">Message from the <span class="highlight">Chairman</span></h2>
+
+        <div class="chairman-modal-qmark">
+          <svg viewBox="0 0 40 32" fill="none" aria-hidden="true">
+            <path d="M0 32V19.556C0 8.741 6.222 2.37 18.667 0L20 3.556C14.074 5.185 11.111 9.185 11.111 14.667H18.667V32H0ZM21.333 32V19.556C21.333 8.741 27.556 2.37 40 0L41.333 3.556C35.407 5.185 32.444 9.185 32.444 14.667H40V32H21.333Z" fill="currentColor"/>
+          </svg>
+        </div>
+
+        <div class="chairman-modal-text">
+          <p>It is my honour and privilege to extend greetings to our esteemed customers, partners, and stakeholders on behalf of ARAR Group.</p>
+          <p>With the continuous support of our clients, stakeholders, and dedicated professionals, ARAR Utility has established a strong reputation as one of the leading infrastructure contractors in the United Arab Emirates.</p>
+          <p>At ARAR Group, our people are our greatest asset. We take immense pride in our highly skilled workforce, whose technical expertise and industry knowledge enable us to successfully execute critical infrastructure projects within demanding schedules, while maintaining the highest standards of quality, safety, and reliability.</p>
+          <p>Over the years, we have built a strong team and developed long-standing relationships with our valued clients. With the continued commitment of our employees and the trust of our customers, I am confident that ARAR Group will continue to achieve new milestones of excellence in the years ahead.</p>
+          <p>We remain committed to delivering superior value through innovation, strategic growth, and operational excellence. As we continue to expand, we will also maintain our strong focus on corporate governance, customer satisfaction, and sustainable development.</p>
+          <p>I would like to take this opportunity to express my sincere appreciation to all our customers, partners, and stakeholders for their continued trust, encouragement, and support throughout our journey. We are confident about the future and look forward to many more successful years ahead together.</p>
+        </div>
+      </div>
+
+    </div><!-- /.chairman-modal-body -->
+  </div><!-- /.chairman-modal-panel -->
+</div><!-- /.chairman-modal-overlay -->
+
+<script>
+  (function () {
+    const btn    = document.getElementById('chairmanMsgBtn');
+    const modal  = document.getElementById('chairmanModal');
+    const close  = document.getElementById('chairmanModalClose');
+
+    function openModal() {
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => modal.classList.add('is-open'));
+      close.focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      document.body.style.overflow = '';
+      modal.addEventListener('transitionend', () => { modal.hidden = true; }, { once: true });
+      btn.focus();
+    }
+
+    btn.addEventListener('click', openModal);
+    close.addEventListener('click', closeModal);
+
+    // Close on backdrop click
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !modal.hidden) closeModal();
+    });
+  })();
+</script>
 
 </html>
