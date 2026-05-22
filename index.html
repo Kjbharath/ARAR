@@ -192,6 +192,14 @@
     <!-- Zoom-to-next overlay (black flash) -->
     <div id="zoomOverlay"></div>
 
+    <!-- Particle Noise Background (same as careers hero) -->
+    <div style="position: absolute; inset: 0; z-index: 0; pointer-events: none;">
+      <!-- Deep red radial gradient base -->
+      <div style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(180, 10, 10, 0.25) 0%, rgba(5, 5, 5, 0.85) 75%);"></div>
+      <!-- Particle Noise Canvas -->
+      <canvas id="particleNoiseCanvas" style="position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: screen;"></canvas>
+    </div>
+
     <!-- Content -->
     <div class="logo-intro-content">
       <div class="logo-3d-wrap" id="logo3dWrap" aria-hidden="true">
@@ -1037,6 +1045,8 @@
       });
     })();
   </script>
+
+  <script src="particle-noise.js"></script>
 
 </body>
 
