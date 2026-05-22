@@ -727,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
 
 
-    // ---- Zoom-Into-Logo Transition ----
+    // ---- Zoom-Into-Logo Transition (desktop only) ----
     (function initZoomTransition() {
         const introSection = document.getElementById('logo-intro');
         const logoWrap     = document.getElementById('logo3dWrap');
@@ -762,7 +762,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.overflow = '';
         }
 
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
         function triggerZoom() {
+            if (isMobile()) return;           // no zoom on mobile
             if (isTransitioning || hasTransitioned) return;
             if (window.scrollY > 20) return;
 
@@ -831,6 +836,7 @@ document.addEventListener('DOMContentLoaded', () => {
             touchStartY = e.touches[0].clientY;
         }, { passive: true });
         introSection.addEventListener('touchmove', (e) => {
+            if (isMobile()) return;           // allow normal scroll on mobile
             if (hasTransitioned || isTransitioning || window.scrollY > 20) return;
             if (touchStartY - e.touches[0].clientY > 30) { e.preventDefault(); triggerZoom(); }
         }, { passive: false });
