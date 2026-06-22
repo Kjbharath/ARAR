@@ -1,0 +1,23 @@
+Options -Indexes
+
+# ─────────────────────────────────────────────
+# Clean URLs — remove .html extensions
+# ─────────────────────────────────────────────
+RewriteEngine On
+
+# ── 1. Redirect: strip .html from any request that includes it ──
+# e.g. /careers.html  → /careers
+# e.g. /utility.html  → /utility
+# e.g. /index.html    → /
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L,NE]
+
+# ── 2. Redirect: /index → / (hide "index" slug) ──
+RewriteRule ^index/?$ / [R=301,L]
+
+# ── 3. Internally serve .html file when clean URL is requested ──
+# e.g. /careers → serves careers.html without redirect
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+?)/?$ $1.html [L]

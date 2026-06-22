@@ -3473,7 +3473,7 @@ select,
    BACK TO TOP BUTTON
    ============================================ */
 .back-to-top {
-  position: Continue fixed;
+  position: fixed;
   bottom: 40px;
   right: 40px;
   width: 50px;
