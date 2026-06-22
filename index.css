@@ -4276,14 +4276,69 @@ select,
 }
 
 @media (max-width: 600px) {
-  .ach-cards-stack-layer {
-    min-height: 500px;
-  }
   .ach-big-num {
     letter-spacing: -1px;
   }
   .ach-card-content {
     padding: 24px !important;
+  }
+}
+
+/* ── Mobile: disable scroll-jacking, show cards as normal flow ── */
+@media (max-width: 768px) {
+  .ach-scroll-space {
+    height: auto !important;
+  }
+
+  .ach-sticky-viewport {
+    position: static !important;
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    padding: 60px 16px;
+    gap: 32px;
+  }
+
+  .ach-cards-stack-layer {
+    position: static !important;
+    height: auto !important;
+    min-height: unset !important;
+    perspective: none;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .ach-card-popup {
+    position: static !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    transition: none !important;
+    width: 100%;
+    height: auto !important;
+  }
+
+  .ach-card {
+    height: auto !important;
+  }
+
+  .ach-card-content {
+    padding: 28px !important;
+    height: auto !important;
+  }
+
+  .ach-card-inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .ach-cable-label {
+    text-align: left;
+  }
+
+  .ach-header {
+    margin-bottom: 32px;
   }
 }
 

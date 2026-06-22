@@ -115,22 +115,12 @@
   <!-- ============ HERO SECTION ============ -->
   <section class="utility-hero" id="utility-hero">
 
-    <!-- Particle Canvas Background -->
-    <div class="utility-hero-bg">
-      <div class="utility-hero-radial"></div>
-      <canvas id="particleNoiseCanvas" class="utility-hero-canvas"></canvas>
-      <!-- Electric cable canvas -->
-      <canvas id="utilityElecCanvas" class="utility-elec-canvas"></canvas>
-    </div>
-
-    <!-- Floating Particles -->
-    <div class="hero-particles">
-      <span class="particle" style="--x:8%;--y:25%;--d:7s;--s:0.6"></span>
-      <span class="particle" style="--x:88%;--y:18%;--d:9s;--s:0.4"></span>
-      <span class="particle" style="--x:72%;--y:70%;--d:6s;--s:0.5"></span>
-      <span class="particle" style="--x:20%;--y:78%;--d:10s;--s:0.35"></span>
-      <span class="particle" style="--x:50%;--y:45%;--d:8s;--s:0.45"></span>
-      <span class="particle" style="--x:92%;--y:60%;--d:7.5s;--s:0.3"></span>
+    <!-- Background -->
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+      <!-- Deep red radial gradient base -->
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, rgba(180, 10, 10, 0.3) 0%, rgba(15, 0, 0, 1) 80%);"></div>
+      <!-- Particle Noise Canvas -->
+      <canvas id="particleNoiseCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; mix-blend-mode: screen;"></canvas>
     </div>
 
     <!-- Content -->
@@ -976,8 +966,11 @@
   <!-- Utility-page gallery now handled by index.js initGallery() -->
 
   <script>
-    // Achievements — Jitter-style scroll jacking popups
+    // Achievements — Jitter-style scroll jacking popups (desktop only)
     (function () {
+      // Skip scroll-jacking on mobile — CSS already makes cards visible
+      if (window.innerWidth <= 768) return;
+
       const scrollSpace = document.getElementById('achScrollSpace');
       if (!scrollSpace) return;
       const cards = scrollSpace.querySelectorAll('.ach-card-popup');
@@ -986,6 +979,9 @@
       const total = cards.length;
 
       window.addEventListener('scroll', function() {
+        // Re-check on each scroll in case of orientation change
+        if (window.innerWidth <= 768) return;
+
         const rect = scrollSpace.getBoundingClientRect();
         const scrollTotal = rect.height - window.innerHeight;
         
