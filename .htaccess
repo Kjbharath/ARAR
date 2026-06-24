@@ -48,11 +48,47 @@ RewriteRule ^hiring/?$                  /careers/ [R=301,L,NE]
 # Common generic dead paths → homepage
 RewriteRule ^about/?$                   / [R=301,L,NE]
 RewriteRule ^about-us/?$                / [R=301,L,NE]
-RewriteRule ^services/?$                / [R=301,L,NE]
 RewriteRule ^contact/?$                 / [R=301,L,NE]
 RewriteRule ^contact-us/?$              / [R=301,L,NE]
 RewriteRule ^portfolio/?$               / [R=301,L,NE]
 RewriteRule ^projects/?$                / [R=301,L,NE]
+
+
+# ─────────────────────────────────────────────
+# GOOGLE SEARCH CONSOLE — "Crawled, not indexed" dead URLs
+# Exact 301s to permanently remove these from Google's index
+# and consolidate to the correct live pages
+# ─────────────────────────────────────────────
+
+# Old WordPress author page
+RewriteRule ^author/?$                  / [R=301,L,NE]
+RewriteRule ^author/admin/?$            / [R=301,L,NE]
+RewriteRule ^author/(.*)$              / [R=301,L,NE]
+
+# Old /clients/ page → homepage (clients section is on homepage)
+RewriteRule ^clients/?$                 / [R=301,L,NE]
+
+# Old project pages → utility (EPC/cable work)
+RewriteRule ^mbr-city/?$               /utility/ [R=301,L,NE]
+RewriteRule ^supply-install-test-and-commission-of-all-kinds-of-hv-mv-lv-and-foc-cables-upto-132-kv-cable-erection-work/?$  /utility/ [R=301,L,NE]
+
+# Old demo/lighting page → utility (street lighting service)
+RewriteRule ^demo/?$                    /utility/ [R=301,L,NE]
+RewriteRule ^demo/(.*)$               /utility/ [R=301,L,NE]
+
+# Old /services/ page → utility (EPC services)
+RewriteRule ^services/?$               /utility/ [R=301,L,NE]
+
+# Old /quality page → homepage
+RewriteRule ^quality/?$                 / [R=301,L,NE]
+
+# Catch-all for any other old WordPress paths (wp-*, feed, etc.)
+RewriteRule ^wp-(.*)$                   / [R=301,L,NE]
+RewriteRule ^feed/?$                    / [R=301,L,NE]
+RewriteRule ^feed/(.*)$                / [R=301,L,NE]
+RewriteRule ^tag/(.*)$                  / [R=301,L,NE]
+RewriteRule ^category/(.*)$            / [R=301,L,NE]
+RewriteRule ^page/(.*)$                / [R=301,L,NE]
 
 
 # ─────────────────────────────────────────────
