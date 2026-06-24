@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Redirecting… — ARAR Group</title>
+  <script>
+    // Dead URL redirect map — handles all old CMS/WordPress paths
+    (function () {
+      var path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+
+      var redirectMap = {
+        // Old WordPress author pages
+        '/author/admin': '/',
+        '/author':       '/',
+
+        // Old CMS pages
+        '/clients':      '/',
+        '/quality':      '/',
+        '/about':        '/',
+        '/about-us':     '/',
+        '/contact':      '/',
+        '/contact-us':   '/',
+        '/home':         '/',
+        '/portfolio':    '/',
+        '/projects':     '/',
+
+        // Old service/project pages → utility
+        '/services':     '/utility/',
+        '/mbr-city':     '/utility/',
+        '/supply-install-test-and-commission-of-all-kinds-of-hv-mv-lv-and-foc-cables-upto-132-kv-cable-erection-work': '/utility/',
+
+        // Old demo/lighting pages
+        '/demo':                          '/utility/',
+        '/demo/lighting-public-lighting': '/utility/',
+
+        // Careers variants
+        '/career':       '/careers/',
+        '/jobs':         '/careers/',
+        '/vacancies':    '/careers/',
+        '/join-us':      '/careers/',
+        '/join':         '/careers/',
+        '/hiring':       '/careers/',
+        '/work-with-us': '/careers/',
+      };
+
+      // Exact match
+      if (redirectMap[path]) {
+        window.location.replace(redirectMap[path]);
+        return;
+      }
+
+      // Prefix match (e.g. /author/anything, /demo/anything, /category/*, /tag/*, /page/*)
+      var prefixes = [
+        { prefix: '/author/',    dest: '/' },
+        { prefix: '/demo/',      dest: '/utility/' },
+        { prefix: '/category/',  dest: '/' },
+        { prefix: '/tag/',       dest: '/' },
+        { prefix: '/page/',      dest: '/' },
+        { prefix: '/wp-',        dest: '/' },
+        { prefix: '/feed',       dest: '/' },
+      ];
+
+      for (var i = 0; i < prefixes.length; i++) {
+        if (window.location.pathname.toLowerCase().indexOf(prefixes[i].prefix) === 0) {
+          window.location.replace(prefixes[i].dest);
+          return;
+        }
+      }
+    })();
+  </script>
+  <link rel="icon" href="/ARAR.png" type="image/png">
+  <link rel="canonical" href="https://arargroup.com/">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d0d0d;
+      color: #fff;
+      font-family: 'Inter', -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    .wrap { max-width: 520px; padding: 40px 24px; }
+    .logo { font-size: 2rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .logo span { color: #D22630; }
+    p { color: #888; font-size: 0.95rem; margin-bottom: 24px; }
+    a {
+      display: inline-block;
+      background: #D22630;
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">ARAR <span>GROUP</span></div>
+    <p>This page has moved. Redirecting you now…</p>
+    <a href="/">Return to Homepage</a>
+  </div>
+</body>
+</html>
