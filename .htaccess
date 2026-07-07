@@ -1,23 +1,157 @@
 Options -Indexes
 
+# Custom error pages
+ErrorDocument 404 /404.html
+ErrorDocument 403 /404.html
+
 # ─────────────────────────────────────────────
-# Clean URLs — remove .html extensions
+# Force HTTPS (uncomment when SSL is active)
+# ─────────────────────────────────────────────
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]
+
+# ─────────────────────────────────────────────
+# Force www → non-www (pick one direction; non-www is canonical)
 # ─────────────────────────────────────────────
 RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.arargroup\.com$ [NC]
+RewriteRule ^ https://arargroup.com%{REQUEST_URI} [R=301,L,NE]
 
-# ── 1. Redirect: strip .html from any request that includes it ──
-# e.g. /careers.html  → /careers
-# e.g. /utility.html  → /utility
-# e.g. /index.html    → /
+
+# ─────────────────────────────────────────────
+# 1. Dead URL redirects — specific known bad paths
+#    These are 301s so Google drops old indexed URLs
+# ─────────────────────────────────────────────
+
+# Old / alternative paths that may have been indexed
+RewriteRule ^home/?$                    / [R=301,L,NE]
+RewriteRule ^index/?$                   / [R=301,L,NE]
+RewriteRule ^index\.html?$              / [R=301,L,NE]
+RewriteRule ^index\.php?$              / [R=301,L,NE]
+
+# Utility page dead variants
+RewriteRule ^utility$                   /utility/ [R=301,L,NE]
+RewriteRule ^utility/index\.html?$      /utility/ [R=301,L,NE]
+RewriteRule ^utility/index\.php?$       /utility/ [R=301,L,NE]
+RewriteRule ^utility/home/?$            /utility/ [R=301,L,NE]
+RewriteRule ^arar-utility/?$            /utility/ [R=301,L,NE]
+RewriteRule ^arar-utility-company/?$    /utility/ [R=301,L,NE]
+
+# Careers page dead variants
+RewriteRule ^careers$                   /careers/ [R=301,L,NE]
+RewriteRule ^careers/index\.html?$      /careers/ [R=301,L,NE]
+RewriteRule ^careers/index\.php?$       /careers/ [R=301,L,NE]
+RewriteRule ^career/?$                  /careers/ [R=301,L,NE]
+RewriteRule ^jobs/?$                    /careers/ [R=301,L,NE]
+RewriteRule ^join-us/?$                 /careers/ [R=301,L,NE]
+RewriteRule ^join/?$                    /careers/ [R=301,L,NE]
+RewriteRule ^vacancies/?$               /careers/ [R=301,L,NE]
+RewriteRule ^work-with-us/?$            /careers/ [R=301,L,NE]
+RewriteRule ^hiring/?$                  /careers/ [R=301,L,NE]
+
+# Common generic dead paths → homepage
+RewriteRule ^about/?$                   / [R=301,L,NE]
+RewriteRule ^about-us/?$                / [R=301,L,NE]
+RewriteRule ^contact/?$                 / [R=301,L,NE]
+RewriteRule ^contact-us/?$              / [R=301,L,NE]
+RewriteRule ^portfolio/?$               / [R=301,L,NE]
+RewriteRule ^projects/?$                / [R=301,L,NE]
+
+
+# ─────────────────────────────────────────────
+# GOOGLE SEARCH CONSOLE — "Crawled, not indexed" dead URLs
+# Exact 301s to permanently remove these from Google's index
+# and consolidate to the correct live pages
+# ─────────────────────────────────────────────
+
+# Old WordPress author page
+RewriteRule ^author/?$                  / [R=301,L,NE]
+RewriteRule ^author/admin/?$            / [R=301,L,NE]
+RewriteRule ^author/(.*)$              / [R=301,L,NE]
+
+# Old /clients/ page → homepage (clients section is on homepage)
+RewriteRule ^clients/?$                 / [R=301,L,NE]
+
+# Old project pages → utility (EPC/cable work)
+RewriteRule ^mbr-city/?$               /utility/ [R=301,L,NE]
+RewriteRule ^supply-install-test-and-commission-of-all-kinds-of-hv-mv-lv-and-foc-cables-upto-132-kv-cable-erection-work/?$  /utility/ [R=301,L,NE]
+
+# Old demo/lighting page → utility (street lighting service)
+RewriteRule ^demo/?$                    /utility/ [R=301,L,NE]
+RewriteRule ^demo/(.*)$               /utility/ [R=301,L,NE]
+
+# Old /services/ page → utility (EPC services)
+RewriteRule ^services/?$               /utility/ [R=301,L,NE]
+
+# Old /quality page → homepage
+RewriteRule ^quality/?$                 / [R=301,L,NE]
+
+# Catch-all for any other old WordPress paths (wp-*, feed, etc.)
+RewriteRule ^wp-(.*)$                   / [R=301,L,NE]
+RewriteRule ^feed/?$                    / [R=301,L,NE]
+RewriteRule ^feed/(.*)$                / [R=301,L,NE]
+RewriteRule ^tag/(.*)$                  / [R=301,L,NE]
+RewriteRule ^category/(.*)$            / [R=301,L,NE]
+RewriteRule ^page/(.*)$                / [R=301,L,NE]
+
+
+# ─────────────────────────────────────────────
+# 2. Strip .html extension from any other requests
+#    e.g. /about.html → /about
+# ─────────────────────────────────────────────
 RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
 RewriteRule ^ /%1 [R=301,L,NE]
 
-# ── 2. Redirect: /index → / (hide "index" slug) ──
-RewriteRule ^index/?$ / [R=301,L]
 
-# ── 3. Internally serve .html file when clean URL is requested ──
-# e.g. /careers → serves careers.html without redirect
+# ─────────────────────────────────────────────
+# 3. Subdirectory index.html → subdirectory/
+#    e.g. /careers/index.html → /careers/
+# ─────────────────────────────────────────────
+RewriteCond %{THE_REQUEST} \s/+(.+?)/index\.html[\s?] [NC]
+RewriteRule ^ /%1/ [R=301,L,NE]
+
+# Subdirectory /index (no ext) → subdirectory/
+RewriteCond %{THE_REQUEST} \s/+(.+?)/index[\s?/] [NC]
+RewriteRule ^ /%1/ [R=301,L,NE]
+
+
+# ─────────────────────────────────────────────
+# 4. Internally serve .html file for clean URLs
+#    e.g. /about → serves about.html silently
+# ─────────────────────────────────────────────
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^(.+?)/?$ $1.html [L]
+
+
+# ─────────────────────────────────────────────
+# Security & Performance Headers
+# ─────────────────────────────────────────────
+<IfModule mod_headers.c>
+  # Prevent MIME type sniffing
+  Header set X-Content-Type-Options "nosniff"
+  # Prevent clickjacking
+  Header set X-Frame-Options "SAMEORIGIN"
+  # XSS protection
+  Header set X-XSS-Protection "1; mode=block"
+  # Referrer policy
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ─────────────────────────────────────────────
+# Cache Control — static assets
+# ─────────────────────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp               "access plus 1 year"
+  ExpiresByType image/png                "access plus 1 year"
+  ExpiresByType image/jpg                "access plus 1 year"
+  ExpiresByType image/jpeg               "access plus 1 year"
+  ExpiresByType image/avif               "access plus 1 year"
+  ExpiresByType image/svg+xml            "access plus 1 year"
+  ExpiresByType text/css                 "access plus 1 month"
+  ExpiresByType application/javascript   "access plus 1 month"
+  ExpiresByType application/json         "access plus 1 week"
+  ExpiresByType text/html                "access plus 1 day"
+</IfModule>
